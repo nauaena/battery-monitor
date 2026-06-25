@@ -14,6 +14,7 @@ sources = files(
   'src/main.vala',
   'src/battery.vala',
   'src/utils/config.vala',
+  'src/ui/tray.vala',
 )
 
 executable('battery-monitor',
@@ -25,4 +26,18 @@ executable('battery-monitor',
 install_data(
   'data/battery-monitor.desktop',
   install_dir: join_paths(get_option('datadir'), 'applications')
+)
+
+icon_dir = join_paths(get_option('datadir'), 'icons', 'hicolor', 'scalable', 'apps')
+install_data(
+  'icons/tray/battery-missing.svg',
+  'icons/tray/battery-caution.svg',
+  'icons/tray/battery-caution-charging.svg',
+  'icons/tray/battery-low.svg',
+  'icons/tray/battery-low-charging.svg',
+  'icons/tray/battery-good.svg',
+  'icons/tray/battery-good-charging.svg',
+  'icons/tray/battery-full.svg',
+  'icons/tray/battery-full-charging.svg',
+  install_dir: icon_dir
 )

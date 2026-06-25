@@ -1,0 +1,25 @@
+# Build directories
+builddir/
+_build/
+
+# Debian build artifacts
+battery-monitor_*.deb
+battery-monitor_*.changes
+battery-monitor_*.buildinfo
+battery-monitor-dbgsym_*.ddeb
+debian/files
+debian/.debhelper/
+debian/battery-monitor/
+debian/battery-monitor.debhelper.log
+debian/battery-monitor.substvars
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

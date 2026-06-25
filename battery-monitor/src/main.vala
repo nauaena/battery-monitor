@@ -4,7 +4,7 @@ public class BatteryMonitor : Gtk.Application {
     private BatteryData battery;
     private Config config;
     private TrayIcon tray;
-    private Gtk.ApplicationWindow main_window;
+    private MainWindow main_window;
     private uint update_timeout;
 
     public BatteryMonitor () {
@@ -38,6 +38,9 @@ public class BatteryMonitor : Gtk.Application {
 
         update_timeout = Timeout.add_seconds (config.refresh_interval, () => {
             tray.update_icon ();
+            if (main_window != null && main_window.get_visible ()) {
+                main_window.update_data ();
+            }
             return true;
         });
     }
@@ -50,51 +53,7 @@ public class BatteryMonitor : Gtk.Application {
     }
 
     private void create_main_window () {
-        main_window = new Gtk.ApplicationWindow (this);
-        main_window.title = "电池监控器";
-        main_window.set_default_size (400, 300);
-        main_window.delete_event.connect (() => {
-            main_window.hide ();
-            return true;
-        });
-
-        update_main_window ();
-    }
-
-    private void update_main_window () {
-        if (main_window == null) return;
-
-        main_window.foreach ((child) => {
-            main_window.remove (child);
-        });
-
-        if (battery.update ()) {
-            var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 10);
-            box.margin = 20;
-
-            var title_label = new Gtk.Label (null);
-            title_label.set_markup ("<b>电池信息</b>");
-            box.add (title_label);
-
-            var info_label = new Gtk.Label (
-                "电量: %d%%\n".printf (battery.capacity) +
-                "状态: %s\n".printf (battery.get_status_text ()) +
-                "功率: %.2f W\n".printf (battery.power_watts) +
-                "电压: %.2f V\n".printf (battery.voltage_volts) +
-                "电流: %.2f A\n".printf (battery.current_amps) +
-                "健康度: %.1f%%\n".printf (battery.health_percent) +
-                "循环次数: %d".printf (battery.cycle_count)
-            );
-            info_label.xalign = 0;
-            box.add (info_label);
-
-            main_window.add (box);
-        } else {
-            var label = new Gtk.Label ("未检测到电池");
-            main_window.add (label);
-        }
-
-        main_window.show_all ();
+        main_window = new MainWindow (this, battery);
     }
 
     private void show_details_window () {

@@ -88,6 +88,7 @@ public class BatteryMonitor : Gtk.Application {
 
     private void create_main_window () {
         main_window = new MainWindow (this, battery, history);
+        main_window.show_all ();
     }
 
     private void show_details_window () {

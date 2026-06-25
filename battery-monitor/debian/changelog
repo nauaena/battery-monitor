@@ -1,3 +1,15 @@
+battery-monitor (1.0.2) unstable; urgency=low
+
+  * Fix window display: enable resize and add scrollable area.
+
+ -- liubing <liubing@users.noreply.github.com>  Fri, 26 Jun 2026 04:25:00 +0000
+
+battery-monitor (1.0.1) unstable; urgency=low
+
+  * Fix main window blank issue: add show_all() after window creation.
+
+ -- liubing <liubing@users.noreply.github.com>  Fri, 26 Jun 2026 04:15:00 +0000
+
 battery-monitor (1.0.0) unstable; urgency=low
 
   * Initial release.

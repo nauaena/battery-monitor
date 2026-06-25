@@ -28,8 +28,8 @@ public class MainWindow : Gtk.ApplicationWindow {
         this.history = history;
 
         title = "电池监控器";
-        set_default_size (500, 700);
-        set_border_width (10);
+        set_default_size (450, 550);
+        set_resizable (true);
 
         delete_event.connect (() => {
             hide ();
@@ -42,6 +42,9 @@ public class MainWindow : Gtk.ApplicationWindow {
     }
 
     private void build_ui () {
+        var scrolled = new Gtk.ScrolledWindow (null, null);
+        scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+
         var main_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 15);
         main_box.margin_top = 10;
         main_box.margin_bottom = 10;
@@ -204,7 +207,8 @@ public class MainWindow : Gtk.ApplicationWindow {
 
         main_box.pack_end (button_box, false, false, 0);
 
-        add (main_box);
+        scrolled.add (main_box);
+        add (scrolled);
     }
 
     public void update_data () {

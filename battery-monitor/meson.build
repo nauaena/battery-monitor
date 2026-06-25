@@ -13,6 +13,7 @@ dependencies = [
 sources = files(
   'src/main.vala',
   'src/battery.vala',
+  'src/utils/config.vala',
 )
 
 executable('battery-monitor',

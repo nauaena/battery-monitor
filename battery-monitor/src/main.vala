@@ -8,21 +8,38 @@ public class BatteryMonitor : Gtk.Application {
     private FloatingWidget widget;
     private HistoryManager history;
     private NotificationManager notification;
+    private AutostartManager autostart;
     private uint update_timeout;
+    private bool start_minimized;
 
     public BatteryMonitor () {
         Object (
             application_id: "com.github.battery-monitor",
-            flags: ApplicationFlags.FLAGS_NONE
+            flags: ApplicationFlags.HANDLES_COMMAND_LINE
         );
         battery = new BatteryData ();
         config = Config.get_instance ();
         history = new HistoryManager ();
         notification = new NotificationManager (battery, config);
+        autostart = new AutostartManager ();
+        start_minimized = false;
+    }
+
+    protected override int command_line (ApplicationCommandLine cmdline) {
+        string[] args = cmdline.get_arguments ();
+        for (int i = 1; i < args.length; i++) {
+            if (args[i] == "--start-minimized") {
+                start_minimized = true;
+            }
+        }
+        activate ();
+        return 0;
     }
 
     protected override void startup () {
         base.startup ();
+
+        autostart.update (config);
 
         tray = new TrayIcon (battery, config);
 
@@ -61,10 +78,12 @@ public class BatteryMonitor : Gtk.Application {
     }
 
     protected override void activate () {
-        if (main_window == null) {
-            create_main_window ();
+        if (!start_minimized) {
+            if (main_window == null) {
+                create_main_window ();
+            }
+            main_window.present ();
         }
-        main_window.present ();
     }
 
     private void create_main_window () {

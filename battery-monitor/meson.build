@@ -17,6 +17,7 @@ sources = files(
   'src/history.vala',
   'src/utils/config.vala',
   'src/utils/notification.vala',
+  'src/utils/autostart.vala',
   'src/ui/tray.vala',
   'src/ui/window.vala',
   'src/ui/widget.vala',

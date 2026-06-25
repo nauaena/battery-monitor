@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=电池监控器
+Exec=/usr/bin/battery-monitor --start-minimized
+Icon=battery-monitor
+Terminal=false
+Type=Application
+X-GNOME-Autostart-enabled=true

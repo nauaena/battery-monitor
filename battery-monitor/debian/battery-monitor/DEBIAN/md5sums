@@ -1,0 +1,12 @@
+a51af3e29e766f726641c28747106945  usr/bin/battery-monitor
+f195a2f4aab2432e5feab3ce0e46d430  usr/share/applications/battery-monitor.desktop
+6e349614ec74bff15239897ad5ebe072  usr/share/doc/battery-monitor/changelog.gz
+2fc733eb1972859fb0bdd739bcbcf39b  usr/share/icons/hicolor/scalable/apps/battery-caution-charging.svg
+86b7a5d5ec9920b5bf3ad5da818e4a32  usr/share/icons/hicolor/scalable/apps/battery-caution.svg
+9f2785c08b12f25b4d27eddc77ae55f1  usr/share/icons/hicolor/scalable/apps/battery-full-charging.svg
+5d73e36dcec34140f0d0ed802d0b8a55  usr/share/icons/hicolor/scalable/apps/battery-full.svg
+cd0e8fe71db813b3b440ea11a44135fd  usr/share/icons/hicolor/scalable/apps/battery-good-charging.svg
+bd863565ef137ac14c8faf4acf681bbc  usr/share/icons/hicolor/scalable/apps/battery-good.svg
+c12b503784952a32d59ab6d9afbdcb59  usr/share/icons/hicolor/scalable/apps/battery-low-charging.svg
+7295636229e52eda2ab3e1fe016dc67e  usr/share/icons/hicolor/scalable/apps/battery-low.svg
+1449aa4d2afc9b19aecf0c2d499104bd  usr/share/icons/hicolor/scalable/apps/battery-missing.svg

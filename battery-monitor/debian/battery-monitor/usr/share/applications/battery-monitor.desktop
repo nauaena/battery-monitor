@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=电池监控器
+Comment=Linux 电池监控工具
+Exec=/usr/bin/battery-monitor
+Icon=battery-monitor
+Terminal=false
+Type=Application
+Categories=System;Monitor;

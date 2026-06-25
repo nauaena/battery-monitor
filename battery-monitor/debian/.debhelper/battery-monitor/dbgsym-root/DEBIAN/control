@@ -1,0 +1,13 @@
+Package: battery-monitor-dbgsym
+Package-Type: ddeb
+Source: battery-monitor
+Version: 1.0.0
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: liubing <liubing@users.noreply.github.com>
+Installed-Size: 193
+Depends: battery-monitor (= 1.0.0)
+Section: debug
+Priority: optional
+Description: debug symbols for battery-monitor
+Build-Ids: 9819ce4dd15c8a967971c856ddc37a267a66973e

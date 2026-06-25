@@ -1,0 +1,3 @@
+battery-monitor-dbgsym_1.0.0_amd64.ddeb debug optional automatic=yes
+battery-monitor_1.0.0_amd64.buildinfo utils optional
+battery-monitor_1.0.0_amd64.deb utils optional

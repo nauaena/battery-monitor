@@ -2,6 +2,7 @@ using Gtk;
 
 public class MainWindow : Gtk.ApplicationWindow {
     private BatteryData battery;
+    private HistoryManager history;
     private Gtk.Label capacity_label;
     private Gtk.Label status_label;
     private Gtk.Label model_label;
@@ -14,14 +15,20 @@ public class MainWindow : Gtk.ApplicationWindow {
     private Gtk.Label health_label;
     private Gtk.Label cycle_label;
     private Gtk.Label lifetime_label;
+    private Gtk.Label last_disconnect_label;
+    private Gtk.Label charging_time_label;
+    private Gtk.Label discharging_time_label;
     private Gtk.Scale progress_bar;
+    private BatteryChart chart;
+    private Gtk.ComboBoxText time_range_combo;
 
-    public MainWindow (Gtk.Application app, BatteryData battery) {
+    public MainWindow (Gtk.Application app, BatteryData battery, HistoryManager history) {
         Object (application: app);
         this.battery = battery;
+        this.history = history;
 
         title = "电池监控器";
-        set_default_size (450, 550);
+        set_default_size (500, 700);
         set_border_width (10);
 
         delete_event.connect (() => {
@@ -31,6 +38,7 @@ public class MainWindow : Gtk.ApplicationWindow {
 
         build_ui ();
         update_data ();
+        update_history (history);
     }
 
     private void build_ui () {
@@ -127,6 +135,57 @@ public class MainWindow : Gtk.ApplicationWindow {
         health_frame.add (health_grid);
         main_box.pack_start (health_frame, false, false, 0);
 
+        // 历史记录面板
+        var history_frame = new Gtk.Frame ("历史记录");
+        var history_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 5);
+        history_box.margin = 10;
+
+        last_disconnect_label = new Gtk.Label ("上次断开充电: --");
+        last_disconnect_label.halign = Gtk.Align.START;
+        history_box.pack_start (last_disconnect_label, false, false, 0);
+
+        var stats_grid = new Gtk.Grid ();
+        stats_grid.column_spacing = 10;
+        stats_grid.row_spacing = 5;
+        stats_grid.margin_top = 5;
+
+        charging_time_label = new Gtk.Label ("--");
+        discharging_time_label = new Gtk.Label ("--");
+
+        stats_grid.attach (new Gtk.Label ("今日充电:"), 0, 0, 1, 1);
+        stats_grid.attach (charging_time_label, 1, 0, 1, 1);
+        stats_grid.attach (new Gtk.Label ("今日放电:"), 0, 1, 1, 1);
+        stats_grid.attach (discharging_time_label, 1, 1, 1, 1);
+
+        history_box.pack_start (stats_grid, false, false, 0);
+
+        history_frame.add (history_box);
+        main_box.pack_start (history_frame, false, false, 0);
+
+        // 图表面板
+        var chart_frame = new Gtk.Frame ("电量变化曲线");
+        var chart_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 5);
+        chart_box.margin = 10;
+
+        time_range_combo = new Gtk.ComboBoxText ();
+        time_range_combo.append ("1", "1小时");
+        time_range_combo.append ("6", "6小时");
+        time_range_combo.append ("24", "24小时");
+        time_range_combo.append ("168", "7天");
+        time_range_combo.set_active_id ("1");
+        time_range_combo.changed.connect (() => {
+            int hours = int.parse (time_range_combo.get_active_id ());
+            chart.set_time_range (hours);
+            chart.set_data (history.get_entries (hours));
+        });
+        chart_box.pack_start (time_range_combo, false, false, 0);
+
+        chart = new BatteryChart ();
+        chart_box.pack_start (chart, true, true, 0);
+
+        chart_frame.add (chart_box);
+        main_box.pack_start (chart_frame, true, true, 0);
+
         // 底部按钮
         var button_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
         button_box.halign = Gtk.Align.CENTER;
@@ -200,5 +259,43 @@ public class MainWindow : Gtk.ApplicationWindow {
         } else {
             lifetime_label.set_text ("需关注");
         }
+    }
+
+    public void update_history (HistoryManager history) {
+        int64 last_disconnect = history.get_last_disconnect_time ();
+        if (last_disconnect > 0) {
+            var dt = new GLib.DateTime.from_unix_local (last_disconnect);
+            last_disconnect_label.set_text ("上次断开充电: %s".printf (dt.format ("%m-%d %H:%M")));
+        }
+
+        var today_entries = history.get_entries (24);
+
+        int charging_minutes = 0;
+        int discharging_minutes = 0;
+
+        for (int i = 0; i < today_entries.get_length (); i++) {
+            var entry = today_entries.get_object_element (i);
+            int64 timestamp = entry.get_int_member ("timestamp");
+            string status = entry.get_string_member ("status");
+
+            if (i > 0) {
+                var prev_entry = today_entries.get_object_element (i - 1);
+                int64 prev_timestamp = prev_entry.get_int_member ("timestamp");
+                int diff = (int) (timestamp - prev_timestamp);
+                if (diff > 0 && diff < 3600) {
+                    if (status == "Charging") {
+                        charging_minutes += diff / 60;
+                    } else if (status == "Discharging") {
+                        discharging_minutes += diff / 60;
+                    }
+                }
+            }
+        }
+
+        charging_time_label.set_text ("%d小时%d分钟".printf (charging_minutes / 60, charging_minutes % 60));
+        discharging_time_label.set_text ("%d小时%d分钟".printf (discharging_minutes / 60, discharging_minutes % 60));
+
+        int hours = int.parse (time_range_combo.get_active_id ());
+        chart.set_data (history.get_entries (hours));
     }
 }

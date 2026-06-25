@@ -1,0 +1,10 @@
+Package: battery-monitor
+Version: 1.0.0
+Architecture: amd64
+Maintainer: liubing <liubing@users.noreply.github.com>
+Installed-Size: 112
+Depends: libgtk-3-0, libayatana-appindicator3-1
+Section: utils
+Priority: optional
+Description: Linux 电池监控工具
+ 一个轻量级的 Linux 电池监控应用

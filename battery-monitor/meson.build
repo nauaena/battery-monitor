@@ -16,6 +16,7 @@ sources = files(
   'src/utils/config.vala',
   'src/ui/tray.vala',
   'src/ui/window.vala',
+  'src/ui/widget.vala',
 )
 
 executable('battery-monitor',

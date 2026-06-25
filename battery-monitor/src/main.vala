@@ -5,6 +5,7 @@ public class BatteryMonitor : Gtk.Application {
     private Config config;
     private TrayIcon tray;
     private MainWindow main_window;
+    private FloatingWidget widget;
     private uint update_timeout;
 
     public BatteryMonitor () {
@@ -36,13 +37,18 @@ public class BatteryMonitor : Gtk.Application {
             quit ();
         });
 
+        widget = new FloatingWidget (battery, config);
+
         update_timeout = Timeout.add_seconds (config.refresh_interval, () => {
             tray.update_icon ();
             if (main_window != null && main_window.get_visible ()) {
                 main_window.update_data ();
             }
+            widget.update_data ();
             return true;
         });
+
+        widget.show_all ();
     }
 
     protected override void activate () {

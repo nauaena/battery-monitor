@@ -6,6 +6,8 @@ public class BatteryMonitor : Gtk.Application {
     private TrayIcon tray;
     private MainWindow main_window;
     private FloatingWidget widget;
+    private HistoryManager history;
+    private NotificationManager notification;
     private uint update_timeout;
 
     public BatteryMonitor () {
@@ -15,6 +17,8 @@ public class BatteryMonitor : Gtk.Application {
         );
         battery = new BatteryData ();
         config = Config.get_instance ();
+        history = new HistoryManager ();
+        notification = new NotificationManager (battery, config);
     }
 
     protected override void startup () {
@@ -41,8 +45,13 @@ public class BatteryMonitor : Gtk.Application {
 
         update_timeout = Timeout.add_seconds (config.refresh_interval, () => {
             tray.update_icon ();
+            if (battery.update ()) {
+                history.add_entry (battery.capacity, battery.status, battery.power_watts, battery.voltage_volts);
+                notification.check ();
+            }
             if (main_window != null && main_window.get_visible ()) {
                 main_window.update_data ();
+                main_window.update_history (history);
             }
             widget.update_data ();
             return true;
@@ -59,7 +68,7 @@ public class BatteryMonitor : Gtk.Application {
     }
 
     private void create_main_window () {
-        main_window = new MainWindow (this, battery);
+        main_window = new MainWindow (this, battery, history);
     }
 
     private void show_details_window () {

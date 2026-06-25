@@ -8,15 +8,19 @@ dependencies = [
   dependency('gobject-2.0'),
   dependency('gtk+-3.0'),
   dependency('ayatana-appindicator3-0.1'),
+  dependency('json-glib-1.0'),
 ]
 
 sources = files(
   'src/main.vala',
   'src/battery.vala',
+  'src/history.vala',
   'src/utils/config.vala',
+  'src/utils/notification.vala',
   'src/ui/tray.vala',
   'src/ui/window.vala',
   'src/ui/widget.vala',
+  'src/ui/chart.vala',
 )
 
 executable('battery-monitor',

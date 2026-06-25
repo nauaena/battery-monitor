@@ -8,11 +8,13 @@ public class TrayIcon : Object {
     private Gtk.Menu menu;
     private Gtk.MenuItem show_main_item;
     private Gtk.MenuItem show_details_item;
+    private Gtk.MenuItem settings_item;
     private Gtk.CheckMenuItem autostart_item;
     private Gtk.MenuItem quit_item;
 
     public signal void show_main_window ();
     public signal void show_details ();
+    public signal void open_settings ();
     public signal void quit_requested ();
 
     public TrayIcon (BatteryData battery, Config config) {
@@ -55,6 +57,14 @@ public class TrayIcon : Object {
             update_autostart ();
         });
         menu.add (autostart_item);
+
+        menu.add (new Gtk.SeparatorMenuItem ());
+
+        settings_item = new Gtk.MenuItem.with_label ("设置");
+        settings_item.activate.connect (() => {
+            open_settings ();
+        });
+        menu.add (settings_item);
 
         menu.add (new Gtk.SeparatorMenuItem ());
 

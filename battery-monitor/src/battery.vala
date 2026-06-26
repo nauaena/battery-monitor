@@ -14,10 +14,13 @@ public class BatteryData : Object {
     public bool is_charging {
         get { return status == "Charging"; }
     }
-    // 电脑运行功率（放电时=电池功率，充电时=充电功率/效率）
-    public double system_power_watts { get; set; default = 0; }
-    // 电池充放电功率
-    public double battery_power_watts { get; set; default = 0; }
+    // 显示功率（放电为正，充电为负）
+    public double display_power_watts {
+        get {
+            if (status == "Charging") return -power_watts;
+            return power_watts;
+        }
+    }
 
     // 输入电压电流（充电时）
     public double input_voltage { get; set; default = 0; }
@@ -68,23 +71,6 @@ public class BatteryData : Object {
             current_amps = power_watts / voltage_volts;
         } else {
             current_amps = 0;
-        }
-
-        // 计算功率
-        // power_now 是电池的充放电功率
-        battery_power_watts = power_watts;
-
-        // 电脑运行功率估算：
-        // 放电时：电脑功率 = 电池放电功率
-        // 充电时：电脑功率 ≈ 充电功率 / 0.8 (假设充电效率80%)
-        if (status == "Discharging") {
-            system_power_watts = power_watts;
-        } else if (status == "Charging") {
-            // 充电时，电脑功率 = 充电器功率 - 充入电池的功率
-            // 这里简化处理：假设充电器功率约为充电功率的1.25倍
-            system_power_watts = power_watts * 0.25;  // 估算电脑自身功耗
-        } else {
-            system_power_watts = 0;
         }
 
         voltage_min_design = read_long ("voltage_min_design") / 1000000.0;

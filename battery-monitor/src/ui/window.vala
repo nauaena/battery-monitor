@@ -8,8 +8,6 @@ public class MainWindow : Gtk.ApplicationWindow {
     private Gtk.Label model_label;
     private Gtk.Label charge_type_label;
     private Gtk.Label power_label;
-    private Gtk.Label charging_power_label;
-    private Gtk.Label discharging_power_label;
     private Gtk.Label voltage_label;
     private Gtk.Label current_label;
     private Gtk.Label input_voltage_label;
@@ -130,27 +128,21 @@ public class MainWindow : Gtk.ApplicationWindow {
         power_grid.margin = 10;
 
         power_label = new Gtk.Label ("--");
-        charging_power_label = new Gtk.Label ("--");
-        discharging_power_label = new Gtk.Label ("--");
         voltage_label = new Gtk.Label ("--");
         current_label = new Gtk.Label ("--");
         input_voltage_label = new Gtk.Label ("--");
         input_current_label = new Gtk.Label ("--");
 
-        power_grid.attach (new Gtk.Label ("当前功率:"), 0, 0, 1, 1);
+        power_grid.attach (new Gtk.Label ("功率:"), 0, 0, 1, 1);
         power_grid.attach (power_label, 1, 0, 1, 1);
-        power_grid.attach (new Gtk.Label ("充电功率:"), 0, 1, 1, 1);
-        power_grid.attach (charging_power_label, 1, 1, 1, 1);
-        power_grid.attach (new Gtk.Label ("放电功率:"), 0, 2, 1, 1);
-        power_grid.attach (discharging_power_label, 1, 2, 1, 1);
-        power_grid.attach (new Gtk.Label ("电压:"), 0, 3, 1, 1);
-        power_grid.attach (voltage_label, 1, 3, 1, 1);
-        power_grid.attach (new Gtk.Label ("电流:"), 0, 4, 1, 1);
-        power_grid.attach (current_label, 1, 4, 1, 1);
-        power_grid.attach (new Gtk.Label ("输入电压:"), 0, 5, 1, 1);
-        power_grid.attach (input_voltage_label, 1, 5, 1, 1);
-        power_grid.attach (new Gtk.Label ("输入电流:"), 0, 6, 1, 1);
-        power_grid.attach (input_current_label, 1, 6, 1, 1);
+        power_grid.attach (new Gtk.Label ("电压:"), 0, 1, 1, 1);
+        power_grid.attach (voltage_label, 1, 1, 1, 1);
+        power_grid.attach (new Gtk.Label ("电流:"), 0, 2, 1, 1);
+        power_grid.attach (current_label, 1, 2, 1, 1);
+        power_grid.attach (new Gtk.Label ("输入电压:"), 0, 3, 1, 1);
+        power_grid.attach (input_voltage_label, 1, 3, 1, 1);
+        power_grid.attach (new Gtk.Label ("输入电流:"), 0, 4, 1, 1);
+        power_grid.attach (input_current_label, 1, 4, 1, 1);
 
         power_frame.add (power_grid);
         box.pack_start (power_frame, false, false, 0);
@@ -318,14 +310,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         charge_type_label.set_text ("充电协议: %s".printf (battery.get_charge_type_text ()));
 
         // 功率信息
-        power_label.set_text ("%.2f W".printf (battery.system_power_watts));
-        if (battery.is_charging) {
-            charging_power_label.set_text ("%.2f W".printf (battery.battery_power_watts));
-            discharging_power_label.set_text ("0.00 W");
-        } else {
-            charging_power_label.set_text ("0.00 W");
-            discharging_power_label.set_text ("%.2f W".printf (battery.battery_power_watts));
-        }
+        power_label.set_text ("%.2f W".printf (battery.display_power_watts));
         voltage_label.set_text ("%.2f V".printf (battery.voltage_volts));
         current_label.set_text ("%.2f A".printf (battery.current_amps));
         input_voltage_label.set_text ("%.2f V".printf (battery.input_voltage));

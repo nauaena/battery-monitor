@@ -43,16 +43,19 @@ public class HistoryManager : Object {
     }
 
     public int64 get_last_disconnect_time () {
-        int64 last_time = 0;
-        for (int i = (int) entries.get_length () - 1; i >= 0; i--) {
+        // 从后往前找，找到从充电变为放电的转折点
+        for (int i = (int) entries.get_length () - 1; i > 0; i--) {
             var entry = entries.get_object_element (i);
+            var prev_entry = entries.get_object_element (i - 1);
             string status = entry.get_string_member ("status");
-            if (status == "Discharging" || status == "Full") {
-                last_time = entry.get_int_member ("timestamp");
-                break;
+            string prev_status = prev_entry.get_string_member ("status");
+
+            // 从 Charging 变为 Discharging，这个时间点就是断开充电的时间
+            if (prev_status == "Charging" && status == "Discharging") {
+                return entry.get_int_member ("timestamp");
             }
         }
-        return last_time;
+        return 0;
     }
 
     private void cleanup_old_entries () {

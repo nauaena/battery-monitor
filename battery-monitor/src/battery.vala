@@ -11,6 +11,9 @@ public class BatteryData : Object {
     public double power_watts { get; set; default = 0; }
     public double voltage_volts { get; set; default = 0; }
     public double current_amps { get; set; default = 0; }
+    public bool is_charging {
+        get { return status == "Charging"; }
+    }
 
     // 输入电压电流（充电时）
     public double input_voltage { get; set; default = 0; }

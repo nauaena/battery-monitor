@@ -1,3 +1,11 @@
+battery-monitor (1.2.0) unstable; urgency=low
+
+  * 区分充电功率和放电功率显示
+  * 图表支持三条曲线切换（电量/充电功率/放电功率）
+  * 每次只显示一条曲线
+
+ -- liubing <liubing@users.noreply.github.com>  Fri, 26 Jun 2026 13:35:00 +0000
+
 battery-monitor (1.1.1) unstable; urgency=low
 
   * Fix current display: calculate from power_now / voltage_now when current_now unavailable.

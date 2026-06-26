@@ -318,13 +318,13 @@ public class MainWindow : Gtk.ApplicationWindow {
         charge_type_label.set_text ("充电协议: %s".printf (battery.get_charge_type_text ()));
 
         // 功率信息
-        power_label.set_text ("%.2f W".printf (battery.power_watts));
+        power_label.set_text ("%.2f W".printf (battery.system_power_watts));
         if (battery.is_charging) {
-            charging_power_label.set_text ("%.2f W".printf (battery.power_watts));
+            charging_power_label.set_text ("%.2f W".printf (battery.battery_power_watts));
             discharging_power_label.set_text ("0.00 W");
         } else {
             charging_power_label.set_text ("0.00 W");
-            discharging_power_label.set_text ("%.2f W".printf (battery.power_watts));
+            discharging_power_label.set_text ("%.2f W".printf (battery.battery_power_watts));
         }
         voltage_label.set_text ("%.2f V".printf (battery.voltage_volts));
         current_label.set_text ("%.2f A".printf (battery.current_amps));

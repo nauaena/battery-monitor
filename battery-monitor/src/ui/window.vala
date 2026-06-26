@@ -6,9 +6,12 @@ public class MainWindow : Gtk.ApplicationWindow {
     private Gtk.Label capacity_label;
     private Gtk.Label status_label;
     private Gtk.Label model_label;
+    private Gtk.Label charge_type_label;
     private Gtk.Label power_label;
     private Gtk.Label voltage_label;
     private Gtk.Label current_label;
+    private Gtk.Label input_voltage_label;
+    private Gtk.Label input_current_label;
     private Gtk.Label estimated_time_label;
     private Gtk.Label design_capacity_label;
     private Gtk.Label current_capacity_label;
@@ -21,6 +24,8 @@ public class MainWindow : Gtk.ApplicationWindow {
     private Gtk.Scale progress_bar;
     private BatteryChart chart;
     private Gtk.ComboBoxText time_range_combo;
+    private Gtk.Paned paned;
+    private bool is_fullscreen = false;
 
     public MainWindow (Gtk.Application app, BatteryData battery, HistoryManager history) {
         Object (application: app);
@@ -28,7 +33,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         this.history = history;
 
         title = "电池监控器";
-        set_default_size (450, 550);
+        set_default_size (800, 600);
         set_resizable (true);
 
         delete_event.connect (() => {
@@ -36,20 +41,53 @@ public class MainWindow : Gtk.ApplicationWindow {
             return true;
         });
 
+        key_press_event.connect ((event) => {
+            if (event.keyval == Gdk.Key.F11) {
+                toggle_fullscreen ();
+                return true;
+            }
+            return false;
+        });
+
         build_ui ();
         update_data ();
         update_history (history);
     }
 
-    private void build_ui () {
-        var scrolled = new Gtk.ScrolledWindow (null, null);
-        scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+    private void toggle_fullscreen () {
+        if (is_fullscreen) {
+            unfullscreen ();
+            is_fullscreen = false;
+            paned.set_position (350);
+        } else {
+            fullscreen ();
+            is_fullscreen = true;
+            int screen_width = screen.get_width ();
+            paned.set_position (screen_width / 2);
+        }
+    }
 
-        var main_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 15);
-        main_box.margin_top = 10;
-        main_box.margin_bottom = 10;
-        main_box.margin_start = 15;
-        main_box.margin_end = 15;
+    private void build_ui () {
+        paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
+        paned.set_position (350);
+
+        // 左侧：基本信息
+        var left_box = build_left_panel ();
+        paned.pack1 (left_box, false, false);
+
+        // 右侧：图表
+        var right_box = build_right_panel ();
+        paned.pack2 (right_box, true, false);
+
+        add (paned);
+    }
+
+    private Gtk.Widget build_left_panel () {
+        var scrolled = new Gtk.ScrolledWindow (null, null);
+        scrolled.set_policy (Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
+
+        var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 10);
+        box.margin = 10;
 
         // 电池基本信息面板
         var basic_frame = new Gtk.Frame ("电池基本信息");
@@ -64,7 +102,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         progress_bar = new Gtk.Scale.with_range (Gtk.Orientation.HORIZONTAL, 0, 100, 1);
         progress_bar.set_value (0);
         progress_bar.set_sensitive (false);
-        progress_bar.set_size_request (-1, 25);
+        progress_bar.set_size_request (-1, 20);
         basic_box.pack_start (progress_bar, false, false, 5);
 
         status_label = new Gtk.Label ("状态: --");
@@ -75,8 +113,12 @@ public class MainWindow : Gtk.ApplicationWindow {
         model_label.halign = Gtk.Align.START;
         basic_box.pack_start (model_label, false, false, 0);
 
+        charge_type_label = new Gtk.Label ("充电协议: --");
+        charge_type_label.halign = Gtk.Align.START;
+        basic_box.pack_start (charge_type_label, false, false, 0);
+
         basic_frame.add (basic_box);
-        main_box.pack_start (basic_frame, false, false, 0);
+        box.pack_start (basic_frame, false, false, 0);
 
         // 功率信息面板
         var power_frame = new Gtk.Frame ("功率信息");
@@ -88,6 +130,8 @@ public class MainWindow : Gtk.ApplicationWindow {
         power_label = new Gtk.Label ("--");
         voltage_label = new Gtk.Label ("--");
         current_label = new Gtk.Label ("--");
+        input_voltage_label = new Gtk.Label ("--");
+        input_current_label = new Gtk.Label ("--");
 
         power_grid.attach (new Gtk.Label ("当前功率:"), 0, 0, 1, 1);
         power_grid.attach (power_label, 1, 0, 1, 1);
@@ -95,9 +139,13 @@ public class MainWindow : Gtk.ApplicationWindow {
         power_grid.attach (voltage_label, 1, 1, 1, 1);
         power_grid.attach (new Gtk.Label ("电流:"), 0, 2, 1, 1);
         power_grid.attach (current_label, 1, 2, 1, 1);
+        power_grid.attach (new Gtk.Label ("输入电压:"), 0, 3, 1, 1);
+        power_grid.attach (input_voltage_label, 1, 3, 1, 1);
+        power_grid.attach (new Gtk.Label ("输入电流:"), 0, 4, 1, 1);
+        power_grid.attach (input_current_label, 1, 4, 1, 1);
 
         power_frame.add (power_grid);
-        main_box.pack_start (power_frame, false, false, 0);
+        box.pack_start (power_frame, false, false, 0);
 
         // 电量预估面板
         var estimate_frame = new Gtk.Frame ("电量预估");
@@ -109,7 +157,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         estimate_box.pack_start (estimated_time_label, false, false, 0);
 
         estimate_frame.add (estimate_box);
-        main_box.pack_start (estimate_frame, false, false, 0);
+        box.pack_start (estimate_frame, false, false, 0);
 
         // 电池健康面板
         var health_frame = new Gtk.Frame ("电池健康");
@@ -136,7 +184,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         health_grid.attach (lifetime_label, 1, 4, 1, 1);
 
         health_frame.add (health_grid);
-        main_box.pack_start (health_frame, false, false, 0);
+        box.pack_start (health_frame, false, false, 0);
 
         // 历史记录面板
         var history_frame = new Gtk.Frame ("历史记录");
@@ -163,12 +211,21 @@ public class MainWindow : Gtk.ApplicationWindow {
         history_box.pack_start (stats_grid, false, false, 0);
 
         history_frame.add (history_box);
-        main_box.pack_start (history_frame, false, false, 0);
+        box.pack_start (history_frame, false, false, 0);
 
-        // 图表面板
-        var chart_frame = new Gtk.Frame ("电量变化曲线");
-        var chart_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 5);
-        chart_box.margin = 10;
+        scrolled.add (box);
+        return scrolled;
+    }
+
+    private Gtk.Widget build_right_panel () {
+        var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 10);
+        box.margin = 10;
+
+        // 工具栏
+        var toolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
+
+        var time_label = new Gtk.Label ("时间范围:");
+        toolbar.pack_start (time_label, false, false, 0);
 
         time_range_combo = new Gtk.ComboBoxText ();
         time_range_combo.append ("1", "1小时");
@@ -181,34 +238,27 @@ public class MainWindow : Gtk.ApplicationWindow {
             chart.set_time_range (hours);
             chart.set_data (history.get_entries (hours));
         });
-        chart_box.pack_start (time_range_combo, false, false, 0);
-
-        chart = new BatteryChart ();
-        chart_box.pack_start (chart, true, true, 0);
-
-        chart_frame.add (chart_box);
-        main_box.pack_start (chart_frame, true, true, 0);
-
-        // 底部按钮
-        var button_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
-        button_box.halign = Gtk.Align.CENTER;
+        toolbar.pack_start (time_range_combo, false, false, 0);
 
         var refresh_button = new Gtk.Button.with_label ("刷新");
         refresh_button.clicked.connect (() => {
             update_data ();
         });
-        button_box.pack_start (refresh_button, false, false, 0);
+        toolbar.pack_end (refresh_button, false, false, 0);
 
         var minimize_button = new Gtk.Button.with_label ("最小化");
         minimize_button.clicked.connect (() => {
             hide ();
         });
-        button_box.pack_start (minimize_button, false, false, 0);
+        toolbar.pack_end (minimize_button, false, false, 0);
 
-        main_box.pack_end (button_box, false, false, 0);
+        box.pack_start (toolbar, false, false, 0);
 
-        scrolled.add (main_box);
-        add (scrolled);
+        // 图表
+        chart = new BatteryChart ();
+        box.pack_start (chart, true, true, 0);
+
+        return box;
     }
 
     public void update_data () {
@@ -217,9 +267,12 @@ public class MainWindow : Gtk.ApplicationWindow {
             progress_bar.set_value (0);
             status_label.set_text ("状态: 未检测到电池");
             model_label.set_text ("型号: -- | 技术: --");
+            charge_type_label.set_text ("充电协议: --");
             power_label.set_text ("--");
             voltage_label.set_text ("--");
             current_label.set_text ("--");
+            input_voltage_label.set_text ("--");
+            input_current_label.set_text ("--");
             estimated_time_label.set_text ("--");
             design_capacity_label.set_text ("--");
             current_capacity_label.set_text ("--");
@@ -240,10 +293,14 @@ public class MainWindow : Gtk.ApplicationWindow {
         }
         model_label.set_text (model_text);
 
+        charge_type_label.set_text ("充电协议: %s".printf (battery.get_charge_type_text ()));
+
         // 功率信息
         power_label.set_text ("%.2f W".printf (battery.power_watts));
         voltage_label.set_text ("%.2f V".printf (battery.voltage_volts));
         current_label.set_text ("%.2f A".printf (battery.current_amps));
+        input_voltage_label.set_text ("%.2f V".printf (battery.input_voltage));
+        input_current_label.set_text ("%.2f A".printf (battery.input_current));
 
         // 电量预估
         estimated_time_label.set_text (battery.get_estimated_time ());
@@ -263,6 +320,9 @@ public class MainWindow : Gtk.ApplicationWindow {
         } else {
             lifetime_label.set_text ("需关注");
         }
+
+        // 更新窗口标题
+        title = "%d%% %s - 电池监控器".printf (battery.capacity, battery.get_status_text ());
     }
 
     public void update_history (HistoryManager history) {

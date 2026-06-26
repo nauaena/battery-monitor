@@ -5,11 +5,19 @@ public class BatteryData : Object {
     public string manufacturer { get; set; default = ""; }
     public string model_name { get; set; default = ""; }
     public string technology { get; set; default = ""; }
+    public string charge_type { get; set; default = ""; }
 
     // 功率信息 (单位已转换)
     public double power_watts { get; set; default = 0; }
     public double voltage_volts { get; set; default = 0; }
     public double current_amps { get; set; default = 0; }
+
+    // 输入电压电流（充电时）
+    public double input_voltage { get; set; default = 0; }
+    public double input_current { get; set; default = 0; }
+
+    // 设计电压
+    public double voltage_min_design { get; set; default = 0; }
 
     // 容量信息 (Wh)
     public double energy_now { get; set; default = 0; }
@@ -40,10 +48,16 @@ public class BatteryData : Object {
         model_name = read_string ("model_name");
         technology = read_string ("technology");
         cycle_count = read_int ("cycle_count");
+        charge_type = read_string ("charge_types");
 
         power_watts = read_long ("power_now") / 1000000.0;
         voltage_volts = read_long ("voltage_now") / 1000000.0;
         current_amps = read_long ("current_now") / 1000000.0;
+        voltage_min_design = read_long ("voltage_min_design") / 1000000.0;
+
+        // 输入电压电流（从 uevent 读取）
+        input_voltage = read_from_uevent ("POWER_SUPPLY_VOLTAGE_NOW") / 1000000.0;
+        input_current = read_from_uevent ("POWER_SUPPLY_CURRENT_NOW") / 1000000.0;
 
         energy_now = read_long ("energy_now") / 1000000.0;
         energy_full = read_long ("energy_full") / 1000000.0;
@@ -118,5 +132,29 @@ public class BatteryData : Object {
         } catch (Error e) {
             return "";
         }
+    }
+
+    private double read_from_uevent (string key) {
+        string uevent_path = Path.build_filename (battery_path, "uevent");
+        try {
+            string contents;
+            FileUtils.get_contents (uevent_path, out contents);
+            string[] lines = contents.split ("\n");
+            foreach (string line in lines) {
+                if (line.has_prefix (key + "=")) {
+                    return double.parse (line.substring (key.length + 1));
+                }
+            }
+        } catch (Error e) {
+        }
+        return 0;
+    }
+
+    public string get_charge_type_text () {
+        if (charge_type == "") return "未知";
+        if (charge_type.contains ("Fast")) return "快速充电";
+        if (charge_type.contains ("Standard")) return "标准充电";
+        if (charge_type.contains ("HV")) return "高压快充";
+        return charge_type;
     }
 }

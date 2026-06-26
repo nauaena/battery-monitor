@@ -19,7 +19,7 @@ public class HistoryManager : Object {
         entry.set_int_member ("timestamp", GLib.get_real_time () / 1000000);
         entry.set_int_member ("capacity", capacity);
         entry.set_string_member ("status", status);
-        entry.set_double_member ("power", power_watts);
+        entry.set_double_member ("power_watts", power_watts);
         entry.set_double_member ("voltage", voltage_volts);
 
         entries.add_object_element (entry);

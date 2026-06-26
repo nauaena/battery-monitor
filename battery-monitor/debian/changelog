@@ -1,3 +1,13 @@
+battery-monitor (1.1.0) unstable; urgency=low
+
+  * 优化主窗口布局：全屏分栏显示
+  * 添加充电握手协议和输入电压电流显示
+  * 图表支持电量和功率双曲线
+  * 曲线平滑处理（贝塞尔曲线）
+  * 按 F11 切换全屏
+
+ -- liubing <liubing@users.noreply.github.com>  Fri, 26 Jun 2026 05:00:00 +0000
+
 battery-monitor (1.0.2) unstable; urgency=low
 
   * Fix window display: enable resize and add scrollable area.

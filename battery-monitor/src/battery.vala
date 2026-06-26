@@ -52,7 +52,17 @@ public class BatteryData : Object {
 
         power_watts = read_long ("power_now") / 1000000.0;
         voltage_volts = read_long ("voltage_now") / 1000000.0;
-        current_amps = read_long ("current_now") / 1000000.0;
+
+        // 尝试读取 current_now，如果不存在则通过功率/电压计算
+        long current_raw = read_long ("current_now");
+        if (current_raw > 0) {
+            current_amps = current_raw / 1000000.0;
+        } else if (voltage_volts > 0 && power_watts > 0) {
+            current_amps = power_watts / voltage_volts;
+        } else {
+            current_amps = 0;
+        }
+
         voltage_min_design = read_long ("voltage_min_design") / 1000000.0;
 
         // 输入电压电流（从 uevent 读取）
